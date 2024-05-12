@@ -1,39 +1,47 @@
 package com.example.m_task
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.room.Room
-import kotlinx.android.synthetic.main.activity_create_card.*
+import com.example.m_task.databinding.ActivityCreateCardBinding
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-
 class CreateCard : AppCompatActivity() {
+    private lateinit var binding: ActivityCreateCardBinding
     private lateinit var database: myDatabase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_create_card)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_create_card)
         database = Room.databaseBuilder(
             applicationContext, myDatabase::class.java, "To_Do"
         ).build()
-        save_button.setOnClickListener {
-            if (create_title.text.toString().trim { it <= ' ' }.isNotEmpty()
-                && create_priority.text.toString().trim { it <= ' ' }.isNotEmpty()
-            ) {
-                var title = create_title.getText().toString()
-                var priority = create_priority.getText().toString()
+
+        binding.saveButton.setOnClickListener {
+            val title = binding.createTitle.text.toString().trim()
+            val priority = binding.createPriority.text.toString().trim()
+
+            if (title.isNotEmpty() && priority.isNotEmpty()) {
                 DataObject.setData(title, priority)
                 GlobalScope.launch {
                     database.dao().insertTask(Entity(0, title, priority))
-
                 }
 
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
+            } else {
+                // Handle case where title or priority is empty
+                // For example, show a toast message
+                showToast("Title or Priority cannot be empty")
             }
         }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

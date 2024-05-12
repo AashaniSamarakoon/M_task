@@ -1,32 +1,38 @@
 package com.example.m_task
 
 object DataObject {
-    var listdata = mutableListOf<CardInfo>()
+    private val listdata = mutableListOf<CardInfo>()
 
     fun setData(title: String, priority: String) {
         listdata.add(CardInfo(title, priority))
     }
 
     fun getAllData(): List<CardInfo> {
-        return listdata
+        return listdata.toList() // Return a copy of the list to prevent external modification
     }
 
     fun deleteAll(){
         listdata.clear()
     }
 
-    fun getData(pos:Int): CardInfo {
-        return listdata[pos]
+    fun getData(pos:Int): CardInfo? {
+        return if (pos in 0 until listdata.size) {
+            listdata[pos]
+        } else {
+            null // Return null if index is out of bounds
+        }
     }
 
     fun deleteData(pos:Int){
-        listdata.removeAt(pos)
+        if (pos in 0 until listdata.size) {
+            listdata.removeAt(pos)
+        }
     }
 
     fun updateData(pos:Int,title:String,priority:String)
     {
-        listdata[pos].title=title
-        listdata[pos].priority=priority
+        if (pos in 0 until listdata.size) {
+            listdata[pos] = CardInfo(title, priority)
+        }
     }
-
 }

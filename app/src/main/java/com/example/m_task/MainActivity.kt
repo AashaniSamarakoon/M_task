@@ -5,41 +5,57 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
-import kotlinx.android.synthetic.main.activity_main.*
+import com.example.m_task.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-
-// entity - table
-// dao - queries
-// database
-
 class MainActivity : AppCompatActivity() {
     private lateinit var database: myDatabase
+    private lateinit var binding: ActivityMainBinding // View Binding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater) // Inflate layout using View Binding
+        setContentView(binding.root)
+
+        // Initialize database
         database = Room.databaseBuilder(
             applicationContext, myDatabase::class.java, "To_Do"
         ).build()
-        add.setOnClickListener {
+
+        // Set click listeners
+        binding.add.setOnClickListener {
             val intent = Intent(this, CreateCard::class.java)
             startActivity(intent)
         }
-        deleteAll.setOnClickListener {
-            DataObject.deleteAll()
-            GlobalScope.launch {
-                database.dao().deleteAll()
+        binding.deleteAll.setOnClickListener {
+            try {
+                // Assuming DataObject is a class/object that handles data operations
+                DataObject.deleteAll()
+                GlobalScope.launch {
+                    database.dao().deleteAll()
+                }
+                setRecycler()
+            } catch (e: Exception) {
+                // Handle any exceptions here
+                e.printStackTrace()
             }
-            setRecycler()
         }
 
+        // Set RecyclerView
         setRecycler()
-
     }
 
-    fun setRecycler() {
-        recycler_view.adapter = Adapter(DataObject.getAllData())
-        recycler_view.layoutManager = LinearLayoutManager(this)
+    private fun setRecycler() {
+        try {
+            // Assuming DataObject is a class/object that handles data operations
+            val adapter = Adapter(DataObject.getAllData()) // Initialize Adapter with appropriate data
+            binding.recyclerView.adapter = adapter
+            binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        } catch (e: Exception) {
+            // Handle any exceptions here
+            e.printStackTrace()
+        }
     }
 }
