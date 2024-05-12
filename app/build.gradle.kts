@@ -1,13 +1,16 @@
 plugins {
     id("com.android.application")
     id ("kotlin-android")
-    id ("kotlin-android-extensions")
     id ("kotlin-kapt")
 }
 
 android {
     namespace = "com.example.m_task"
     compileSdk = 34
+
+    buildFeatures {
+        dataBinding = true
+    }
 
     defaultConfig {
         applicationId = "com.example.m_task"

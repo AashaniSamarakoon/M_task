@@ -1,45 +1,48 @@
+// CardInfo.kt
 package com.example.m_task
 
+// Adapter.kt
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.view.view.*
+import com.example.m_task.databinding.ViewBinding
 
 class Adapter(private var data: List<CardInfo>) : RecyclerView.Adapter<Adapter.ViewHolder>() {
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title = itemView.title
-        val priority = itemView.priority
-        val layout = itemView.mylayout
+    inner class ViewHolder(val binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(cardInfo: CardInfo) {
+            binding.cardInfo = cardInfo
+            binding.executePendingBindings()
+
+            // Set background color based on priority
+            when (cardInfo.priority.toLowerCase()) {
+                "high" -> binding.mylayout.setBackgroundColor(Color.parseColor("#F05454"))
+                "medium" -> binding.mylayout.setBackgroundColor(Color.parseColor("#EDC988"))
+                else -> binding.mylayout.setBackgroundColor(Color.parseColor("#00917C"))
+            }
+
+            // Set click listener to open UpdateCard activity
+            binding.root.setOnClickListener {
+                val intent = Intent(it.context, UpdateCard::class.java)
+                intent.putExtra("id", adapterPosition)
+                it.context.startActivity(intent)
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.view, parent, false)
-        return ViewHolder(itemView)
+        val inflater = LayoutInflater.from(parent.context)
+        val binding: ViewBinding = DataBindingUtil.inflate(inflater, R.layout.view, parent, false)
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentItem = data[position]
-
-        // Set background color based on priority
-        when (currentItem.priority.toLowerCase()) {
-            "high" -> holder.layout.setBackgroundColor(Color.parseColor("#F05454"))
-            "medium" -> holder.layout.setBackgroundColor(Color.parseColor("#EDC988"))
-            else -> holder.layout.setBackgroundColor(Color.parseColor("#00917C"))
-        }
-
-        holder.title.text = currentItem.title
-        holder.priority.text = currentItem.priority
-
-        // Set click listener to open UpdateCard activity
-        holder.itemView.setOnClickListener {
-            val intent = Intent(holder.itemView.context, UpdateCard::class.java)
-            intent.putExtra("id", position)
-            holder.itemView.context.startActivity(intent)
-        }
+        holder.bind(currentItem)
     }
 
     override fun getItemCount(): Int {
